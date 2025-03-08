@@ -1,23 +1,14 @@
 import streamlit as st
-
-def analyze_document(document_text):
-    return {
-        "key_points": [
-            "Position: Senior Developer with stock option vesting over 4 years",
-            "Compensation: ₹21L base + 20% performance bonus potential",
-            "Benefits: Full healthcare coverage and 5% 401(k) match",
-            "Termination: 60-day employer notice vs 30-day employee notice"
-        ],
-        "risks": [
-            ("Non-compete Clause", "high", "18-month restriction in tech industry - potentially unenforceable in some states"),
-            ("Confidentiality", "high", "Lifetime obligation for trade secrets - exceeds typical 2-5 year standards"),
-            ("IP Assignment", "medium", "All work products remain company property without exceptions"),
-            ("Termination", "medium", "Discretionary termination for 'business needs' without clear parameters")
-        ]
-    }
+import PyPDF2
+def predefined_compare_document(chosen_temp, document_text):
+    changes=""
+    return changes
+def custom_compare_document(org_doc,chk_doc):
+    changes=""
+    return changes
 
 def main():
-    st.set_page_config(page_title="Doc Formatting", layout="centered")
+    st.set_page_config(page_title="Doc Formatting", layout="wide")
     
     st.title("Court-Ready Document Formatting")
     st.caption("Upload legal documents for format analysis or comparison.")
@@ -32,14 +23,14 @@ def main():
         
         if uploaded_file:
             if st.button("Submit"):
-                with st.spinner("Analyzing document..."):
+                with st.spinner("Comparing document with chosen template..."):
                     document_text = "hello"
-                    analysis = analyze_document(document_text)
+                    analysis = predefined_compare_document(selected_doc,document_text)
                     
                     st.markdown("#### Wrong Formatting located in following places")
                     with st.container(border=True):
                         for point in analysis["key_points"]:
-                            st.markdown(f"• {point}")
+                            st.markdown(point)
                     
                     st.markdown("#### Changes that should be made")
                     with st.container(border=True):
@@ -66,58 +57,22 @@ def main():
         
         if uploaded_file1 and uploaded_file2:
             if st.button("Submit Comparison"):
-                with st.spinner("Analyzing documents..."):
-                    document_text1 = "hello"
-                    document_text2 = "hello"
-                    
-                    analysis1 = analyze_document(document_text1)
-                    analysis2 = analyze_document(document_text2)
-                    
+                 document_text1 = ""
+                 document_text2 = ""
+                 if uploaded_file1.type == "text/plain" and uploaded_file2.type == "text/plain":
+                    document_text1 = uploaded_file1.getvalue().decode("utf-8")
+                 elif uploaded_file1.type == "application/pdf" and uploaded_file2.type == "application/pdf":
+                    reader1 = PyPDF2.PdfReader(uploaded_file1)
+                    reader2 = PyPDF2.PdfReader(uploaded_file2)
+                    document_text1 = "\n".join([page.extract_text() for page in reader1.pages if page.extract_text()])
+                    document_text2 = "\n".join([page.extract_text() for page in reader2.pages if page.extract_text()])
+                 with st.spinner("Comparing documents..."):
+                    analysis=custom_compare_document(document_text1,document_text2)
                     st.markdown("#### Changes that are identifiedS")
                     with st.container(border=True):
-                        st.markdown("**First Document:**")
-                        for point in analysis1["key_points"]:
-                            st.markdown(f"• {point}")
-                        
                         st.markdown("**Comparison Document:**")
-                        for point in analysis2["key_points"]:
-                            st.markdown(f"• {point}")
-                    
-                    st.markdown("#### Risk Assessment")
-                    with st.container(border=True):
-                        st.markdown("**First Document:**")
-                        for risk in analysis1["risks"]:
-                            label, severity, details = risk
-                            color = {
-                                "high": "#ef476f",
-                                "medium": "#ffd166",
-                                "low": "#06d6a0"
-                            }.get(severity, "#666666")
-                            
-                            st.markdown(
-                                f"<div style='padding: 0.5rem; border-left: 4px solid {color}; margin: 0.5rem 0;'>"
-                                f"<b>{label}</b><br>"
-                                f"<span style='color: {color}; font-size: 0.9em'>{details}</span>"
-                                "</div>", 
-                                unsafe_allow_html=True
-                            )
-                        
-                        st.markdown("**Comparison Document:**")
-                        for risk in analysis2["risks"]:
-                            label, severity, details = risk
-                            color = {
-                                "high": "#ef476f",
-                                "medium": "#ffd166",
-                                "low": "#06d6a0"
-                            }.get(severity, "#666666")
-                            
-                            st.markdown(
-                                f"<div style='padding: 0.5rem; border-left: 4px solid {color}; margin: 0.5rem 0;'>"
-                                f"<b>{label}</b><br>"
-                                f"<span style='color: {color}; font-size: 0.9em'>{details}</span>"
-                                "</div>", 
-                                unsafe_allow_html=True
-                            )
+                        for point in analysis["key_points"]:
+                            st.markdown(point)
 
 if __name__ == "__main__":
     main()
