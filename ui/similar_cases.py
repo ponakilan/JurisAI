@@ -1,4 +1,7 @@
 import streamlit as st
+from langchain.chat_models import init_chat_model
+
+from core.search import VectorDB
 
 CASE_DATA = {
     "ENV-1988-001": {
@@ -29,6 +32,12 @@ CASE_DATA = {
     }
 }
 
+db = VectorDB()
+model = init_chat_model(
+    "gpt-4o",
+    model_provider="openai"
+)
+
 def get_case_summary(case_id):
     summary = CASE_DATA[case_id]["summary"]
     return f"""
@@ -46,6 +55,9 @@ def main():
     case_input = st.text_area("Describe your case:", 
                             height=150,
                             placeholder="Enter details about your case...")
+
+    similar_cases = db.search(case_input, 2)
+
 
     if st.button("Find Similar Cases"):
         st.subheader("Related Cases:")
