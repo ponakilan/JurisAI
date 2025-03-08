@@ -1,52 +1,38 @@
 import streamlit as st
+from openai import OpenAI
+import re
 
-EMPLOYMENT_KNOWLEDGE = {
-    "wrongful_termination": {
-        "description": "Unfair Dismissal After Safety Reporting",
-        "critical_deadlines": [
-            "- 3 months to file ACAS Early Conciliation",
-            "- 6 months for Employment Tribunal claim",
-            "- 2 years for personal injury claims"
-        ],
-        "steps": [
-            "1. Secure employment contract and payslips",
-            "2. Preserve all safety reports/emails (incl. metadata)",
-            "3. File ACAS EC Form within 3 months [Mandatory]",
-            "4. Request workplace arbitration if available",
-            "5. Consider without-prejudice negotiations"
-        ],
-        "legal_basis": {
-            "equality_act": "Protection against detriment (Section 44)",
-            "era_1996": "Unfair dismissal rights (Section 94)",
-            "whistleblowing": "Public Interest Disclosure Act 1998"
-        },
-        "template": """Subject: Formal Grievance - Unfair Dismissal
-Dear HR Manager,
+client = OpenAI(
+  api_key='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'
+)
 
-I am writing to formally challenge my termination dated [DATE]. 
-As a protected whistleblower under Section 44 of the Equality Act 2010, 
-my dismissal following safety reports on [ISSUE] constitutes unlawful retaliation.
+system_prompt = '''You are an AI legal assistant that provides guidance based on legal principles. 
+Your responses should be neutral, informative, and help the user understand their legal options. 
+You provide definitive legal conclusions. 
+You do not provide general actions. You only provide legal advice and how to proceed judicially.
+You do not provide advice to consult an attorney.
+You provice decisive information.
+Your response should contain three sections: 1.critical deadlines to file any complaint 2. required actions to be taken 3.legal protection acts that are applicable to the user's query'''
 
-I request:
-1. Full reinstatement with back pay
-2. Preservation of all relevant documents
-3. Written response within 14 days
 
-Please treat this as a formal grievance under Section 10 of the Employment Relations Act 1999."""
-    }
-}
 
-def get_guidance(user_input):
-    user_input = user_input.lower()
-    triggers = [
-        "wrongful termination", 
-        "safety violation",
-        "dismissed",
-        "unfair dismissal",
-        "whistleblower"
+def get_guidance(prompt):
+    
+    completion = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "system", "content": system_prompt},
+        {
+            "role": "user",
+            "content": prompt
+        }
     ]
-    return "employment"
-
+    )
+    result_prompt = completion.choices[0].message.content
+    #matches = re.split(r'\n\d+\.\s\*\*[^\*\*]\*\*:', result_prompt)
+    final_response = result_prompt.replace('**','<h3>').replace('**:','</h3>')
+    #print(final_response)
+    return final_response
 st.set_page_config(page_title="Legal Resolution Guide")
 st.title("Legal Resolution Guide")
 st.caption("Specialized support for your issues.")
@@ -68,24 +54,11 @@ if prompt := st.chat_input("Enter your issue..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     
     with st.chat_message("assistant"):
-        issue_type = get_guidance(prompt)
-        response = ""
-        if issue_type == "employment":
-            data = EMPLOYMENT_KNOWLEDGE["wrongful_termination"]
-            
-            response = f"**Case Identified:** {data['description']}\n\n"
-            response += "**Critical Deadlines:**\n" + "\n".join(data['critical_deadlines']) + "\n\n"
-            response += "**Required Actions:**\n" + "\n".join(data['steps']) + "\n\n"
-            response += "**Legal Protections:**\n"
-            response += f"- Equality Act 2010: {data['legal_basis']['equality_act']}\n"
-            response += f"- Employment Rights Act: {data['legal_basis']['era_1996']}\n"
-            response += f"- Whistleblower Protection: {data['legal_basis']['whistleblowing']}\n\n"
-            response += f"**Sample Grievance Letter:**\n```{data['template']}"
-        else:
-            response = "Please describe your employment issue in detail (e.g., dismissal timing, safety reports made)"
+        #response = get_guidance(prompt)
+        #print(response)
+        #response = "Please describe your employment issue in detail (e.g., dismissal timing, safety reports made)"
         
-        st.markdown(response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({"role": "user", "content": "hello hi hola"})
 
 with st.sidebar:
     st.warning("""
