@@ -3,31 +3,7 @@ from search import VectorDB
 db = VectorDB()
 
 query = """
- HEADNOTE:
- Where  at  the hearing of an appeal filed by  special  leave
- from  a decision of the High Court in a Writ Petition  filed
- there under Art. 226 of the Constitution of India against an
- order   of  the  Payment  of  Wages  Authority,  the   Court
- considered  that  there  was some force  in  the  contention
- relating to the jurisdiction of the Authority concerned  but
- did  not decide that question on the view that as there  had
- been  no  failure of justice the Court would  not  interfere
- under  its powers under Art. 136, and the appellant  applied
- for a review of the judgment
- 15
- 114
- Held, that wide as are the powers of the Supreme Court under
- Art.  136 of the Constitution, its powers are  discretionary
- and though special leave had been granted the Court was  not
- bound to decide the question of jurisdiction of the inferior
- tribunal  or  court  where  the  decision  of  the  inferior
- tribunal or court had been taken to a higher tribunal  which
- undoubtedly had jurisdiction and from the decision of  which
- the   special  leave  was  granted  if  on  the  facts   and
- circumstances  of  the  case it came to  the  conclusion  in
- dealing with the appeal under that Article that there was no
- failure of justice.
- A. M. Allison v. B.  L. Sen, [1957] S.C.R. 359, relied on
+The case involves a dispute regarding the jurisdiction of the Payment of Wages Authority, whose order is challenged through a writ petition before the Bombay High Court under Article 226 of the Indian Constitution. The petitioner, Shri Balwantrai Chimanlal Trivedi, contends that the authority lacks jurisdiction to pass the order in question. After the Bombay High Court upholds the decision, the petitioner files a special leave petition under Article 136 before the Supreme Court, arguing that the tribunal's lack of jurisdiction invalidates the order. The Supreme Court considers whether the issue of jurisdiction has led to any failure of justice, which would warrant interference under its discretionary powers. The case raises important questions about the limits of judicial review, the role of special leave jurisdiction, and the conditions under which a court should intervene when jurisdictional concerns are raised.
 """
 
 docs = db.search(query, 2)

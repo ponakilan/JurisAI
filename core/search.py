@@ -17,8 +17,4 @@ class VectorDB:
 
     def search(self, text, k):
         docs = self.vector_store.similarity_search(text, k=k)
-
-        for doc in docs:
-            print(doc.metadata)
-
         return docs
