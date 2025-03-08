@@ -1,11 +1,51 @@
 import streamlit as st
 import PyPDF2
+from openai import OpenAI
+
+client = OpenAI(
+  api_key='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'
+)
+
+system_prompt = '''You are a legal document format validation AI. Your task is to compare a given legal document against a reference sample document and check if the format matches.
+
+Instructions:
+Identify Structural Differences:
+
+Check if both documents have the same sections in the same order.
+Ensure proper numbering, headings, and subheadings.
+Verify formatting consistency (e.g., bolded section titles, paragraph spacing).
+Check Content Consistency:
+
+Ensure required clauses appear in the same sections as in the sample.
+Identify any missing or extra sections.
+Highlight inconsistent terminology or formatting errors.
+Output Format:
+
+Pass/Fail status for format adherence in h3 sizing.
+List of differences, specifying missing, extra, or misformatted sections.
+Suggested corrections(to be in bold) to align with the sample document.
+Rules for Validation:
+The provided legal document must closely follow the reference sample document’s structure.
+Minor wording variations are acceptable unless they affect meaning or legality.
+Clearly state any issues in a structured format.
+'''
+
 def predefined_compare_document(chosen_temp, document_text):
-    changes=""
-    return changes
+    return
+
 def custom_compare_document(org_doc,chk_doc):
-    changes=""
-    return changes
+    completion = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "system", "content": system_prompt},
+        {
+            "role": "user",
+            "content": f"sample-document:{chk_doc},required-document:{org_doc}"
+        }
+    ]
+    )
+    result_prompt = completion.choices[0].message.content
+    return result_prompt
 
 def main():
     st.set_page_config(page_title="Doc Formatting", layout="wide")
@@ -61,6 +101,7 @@ def main():
                  document_text2 = ""
                  if uploaded_file1.type == "text/plain" and uploaded_file2.type == "text/plain":
                     document_text1 = uploaded_file1.getvalue().decode("utf-8")
+                    document_text2 = uploaded_file2.getvalue().decode("utf-8")
                  elif uploaded_file1.type == "application/pdf" and uploaded_file2.type == "application/pdf":
                     reader1 = PyPDF2.PdfReader(uploaded_file1)
                     reader2 = PyPDF2.PdfReader(uploaded_file2)
@@ -68,11 +109,10 @@ def main():
                     document_text2 = "\n".join([page.extract_text() for page in reader2.pages if page.extract_text()])
                  with st.spinner("Comparing documents..."):
                     analysis=custom_compare_document(document_text1,document_text2)
-                    st.markdown("#### Changes that are identifiedS")
+                    st.markdown("#### Changes that are identified")
                     with st.container(border=True):
                         st.markdown("**Comparison Document:**")
-                        for point in analysis["key_points"]:
-                            st.markdown(point)
+                        st.markdown(analysis)
 
 if __name__ == "__main__":
     main()
