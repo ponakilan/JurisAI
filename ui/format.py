@@ -1,23 +1,14 @@
 import streamlit as st
 
-def analyze_document(document_text):
-    return {
-        "key_points": [
-            "Position: Senior Developer with stock option vesting over 4 years",
-            "Compensation: ₹21L base + 20% performance bonus potential",
-            "Benefits: Full healthcare coverage and 5% 401(k) match",
-            "Termination: 60-day employer notice vs 30-day employee notice"
-        ],
-        "risks": [
-            ("Non-compete Clause", "high", "18-month restriction in tech industry - potentially unenforceable in some states"),
-            ("Confidentiality", "high", "Lifetime obligation for trade secrets - exceeds typical 2-5 year standards"),
-            ("IP Assignment", "medium", "All work products remain company property without exceptions"),
-            ("Termination", "medium", "Discretionary termination for 'business needs' without clear parameters")
-        ]
-    }
+def predefined_compare_document(chosen_temp, document_text):
+    changes=""
+    return changes
+def custom_compare_document(org_doc,chk_doc):
+    changes=""
+    return changes
 
 def main():
-    st.set_page_config(page_title="Doc Formatting", layout="centered")
+    st.set_page_config(page_title="Doc Formatting", layout="wide")
     
     st.title("Court-Ready Document Formatting")
     st.caption("Upload legal documents for format analysis or comparison.")
@@ -32,14 +23,14 @@ def main():
         
         if uploaded_file:
             if st.button("Submit"):
-                with st.spinner("Analyzing document..."):
+                with st.spinner("Comparing document with chosen template..."):
                     document_text = "hello"
-                    analysis = analyze_document(document_text)
+                    analysis = predefined_compare_document(selected_doc,document_text)
                     
                     st.markdown("#### Wrong Formatting located in following places")
                     with st.container(border=True):
                         for point in analysis["key_points"]:
-                            st.markdown(f"• {point}")
+                            st.markdown(point)
                     
                     st.markdown("#### Changes that should be made")
                     with st.container(border=True):
