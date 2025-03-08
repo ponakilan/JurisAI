@@ -1,5 +1,5 @@
 import streamlit as st
-
+import PyPDF2
 def predefined_compare_document(chosen_temp, document_text):
     changes=""
     return changes
@@ -57,58 +57,22 @@ def main():
         
         if uploaded_file1 and uploaded_file2:
             if st.button("Submit Comparison"):
-                with st.spinner("Analyzing documents..."):
-                    document_text1 = "hello"
-                    document_text2 = "hello"
-                    
-                    analysis1 = analyze_document(document_text1)
-                    analysis2 = analyze_document(document_text2)
-                    
+                 document_text1 = ""
+                 document_text2 = ""
+                 if uploaded_file1.type == "text/plain" and uploaded_file2.type == "text/plain":
+                    document_text1 = uploaded_file1.getvalue().decode("utf-8")
+                 elif uploaded_file1.type == "application/pdf" and uploaded_file2.type == "application/pdf":
+                    reader1 = PyPDF2.PdfReader(uploaded_file1)
+                    reader2 = PyPDF2.PdfReader(uploaded_file2)
+                    document_text1 = "\n".join([page.extract_text() for page in reader1.pages if page.extract_text()])
+                    document_text2 = "\n".join([page.extract_text() for page in reader2.pages if page.extract_text()])
+                 with st.spinner("Comparing documents..."):
+                    analysis=custom_compare_document(document_text1,document_text2)
                     st.markdown("#### Changes that are identifiedS")
                     with st.container(border=True):
-                        st.markdown("**First Document:**")
-                        for point in analysis1["key_points"]:
-                            st.markdown(f"• {point}")
-                        
                         st.markdown("**Comparison Document:**")
-                        for point in analysis2["key_points"]:
-                            st.markdown(f"• {point}")
-                    
-                    st.markdown("#### Risk Assessment")
-                    with st.container(border=True):
-                        st.markdown("**First Document:**")
-                        for risk in analysis1["risks"]:
-                            label, severity, details = risk
-                            color = {
-                                "high": "#ef476f",
-                                "medium": "#ffd166",
-                                "low": "#06d6a0"
-                            }.get(severity, "#666666")
-                            
-                            st.markdown(
-                                f"<div style='padding: 0.5rem; border-left: 4px solid {color}; margin: 0.5rem 0;'>"
-                                f"<b>{label}</b><br>"
-                                f"<span style='color: {color}; font-size: 0.9em'>{details}</span>"
-                                "</div>", 
-                                unsafe_allow_html=True
-                            )
-                        
-                        st.markdown("**Comparison Document:**")
-                        for risk in analysis2["risks"]:
-                            label, severity, details = risk
-                            color = {
-                                "high": "#ef476f",
-                                "medium": "#ffd166",
-                                "low": "#06d6a0"
-                            }.get(severity, "#666666")
-                            
-                            st.markdown(
-                                f"<div style='padding: 0.5rem; border-left: 4px solid {color}; margin: 0.5rem 0;'>"
-                                f"<b>{label}</b><br>"
-                                f"<span style='color: {color}; font-size: 0.9em'>{details}</span>"
-                                "</div>", 
-                                unsafe_allow_html=True
-                            )
+                        for point in analysis["key_points"]:
+                            st.markdown(point)
 
 if __name__ == "__main__":
     main()
