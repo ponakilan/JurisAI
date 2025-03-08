@@ -19,7 +19,7 @@ def get_case_summary(text):
               Issue 
               Decision
               Key points
-              all the headings should be in h3"""},
+              all the headings should be in h4"""},
               {"role": "user", "content": text}
         ]
     )
@@ -52,8 +52,7 @@ def main():
         for i, case in enumerate(similar_cases):
             with st.expander(f"Case {i}"):
                 st.markdown(get_case_summary(case.page_content), unsafe_allow_html=True)
-                if st.link_button("View Full Judgment", "adscd"):
-                    pass
+                st.link_button("View Full Judgment", f"https://storage.googleapis.com/jurisai/{case.metadata['file_name']}")
 
         st.markdown("---")
         st.caption("**Similarities:**")
