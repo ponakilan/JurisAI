@@ -5,7 +5,7 @@ client = OpenAI(
   api_key='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'
 )
 
-st.markdown('<style>h3{margin-top:0;padding-top:0 !important;}</style>',unsafe_allow_html=True)
+
 
 
 system_prompt_deadlines = '''You are an AI legal assistant that provides guidance based on legal principles. 
@@ -57,7 +57,7 @@ def get_guidance(prompt,system_settings):
 st.set_page_config(page_title="Legal Resolution Guide")
 st.title("Legal Resolution Guide")
 st.caption("Specialized support for your issues.")
-
+st.markdown('<style>h3{margin-top:0;padding-top:0 !important;}</style>',unsafe_allow_html=True)
 if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.messages.append({
