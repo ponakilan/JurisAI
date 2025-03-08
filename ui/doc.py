@@ -1,69 +1,93 @@
 import streamlit as st
+import openai
+import PyPDF2
+
+OPEN_API_KEY = "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"
+client = openai.OpenAI(api_key=OPEN_API_KEY)
 
 def analyze_document(document_text):
-    return {
-        "key_points": [
-            "Position: Senior Developer with stock option vesting over 4 years",
-            "Compensation: ₹21L base + 20% performance bonus potential",
-            "Benefits: Full healthcare coverage and 5% 401(k) match",
-            "Termination: 60-day employer notice vs 30-day employee notice"
-        ],
-        "risks": [
-            ("Non-compete Clause", "high", "18-month restriction in tech industry - potentially unenforceable in some states"),
-            ("Confidentiality", "high", "Lifetime obligation for trade secrets - exceeds typical 2-5 year standards"),
-            ("IP Assignment", "medium", "All work products remain company property without exceptions"),
-            ("Termination", "medium", "Discretionary termination for 'business needs' without clear parameters")
+    if not document_text.strip():
+        return {"key_points": ["No content found in the document."], "risks": []}
+
+    # Request key points from OpenAI
+    key_points_response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "Extract key points from the following legal document and provide short explanation."},
+            {"role": "user", "content": document_text}
         ]
-    }
+    )
+    key_points = key_points_response.choices[0].message.content.strip().split("\n")
+
+    # Request risks from OpenAI
+    risks_response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "Analyze the legal document and extract potential risks. "
+                    "List each risk with severity (High/Medium/Low) and a short explanation in this format strictly and dont number the points:\n"
+                    "Risk Name - Severity - Explanation"},
+            {"role": "user", "content": document_text}
+        ]
+    )
+    risks = risks_response.choices[0].message.content.strip().split("\n")
+
+    risks_data = [tuple(risk.split(" - ")) for risk in risks if " - " in risk]  # Extracting risk label, severity, and details
+    
+    # Sort risks by severity order: High > Medium > Low
+    severity_order = {"high": 1, "medium": 2, "low": 3}
+    risks_data.sort(key=lambda x: severity_order.get(x[1].lower(), 4))
+
+    return {"key_points": key_points, "risks": risks_data}
 
 def main():
     st.set_page_config(page_title="LegalDoc Analyzer", layout="centered")
-    
-    st.title("Legal Document Analyzer")
+
+    st.title("📜 Legal Document Analyzer")
     st.caption("Upload your legal document for automated risk analysis and summary")
-    
-    uploaded_file = st.file_uploader("Choose a document", 
-                                   type=["txt", "pdf"],
-                                   label_visibility="collapsed",
-                                   help="Supported formats: .txt, .pdf (max 10MB)")
-    
-    doc_container = st.empty()
-    analysis_container = st.empty()
-    
-    if not uploaded_file:
-        return
-    
-    with st.spinner("Analyzing document..."):
-        document_text = "hello"
-        analysis = analyze_document(document_text)
-        
-        doc_container.empty()
-        analysis_container.empty()
-        
-        st.subheader("Analysis Results")
-        
-        st.markdown("#### Key Provisions")
-        with st.container(border=True):
-            for point in analysis["key_points"]:
-                st.markdown(f"• {point}")
-        
-        st.markdown("#### Risk Assessment")
-        with st.container(border=True):
-            for risk in analysis["risks"]:
-                label, severity, details = risk
-                color = {
-                    "high": "#ef476f",
+
+    uploaded_file = st.file_uploader("Choose a document", type=["txt", "pdf"], help="Supported formats: .txt, .pdf (max 10MB)")
+
+    # Submit button
+    analyze_button = st.button("Analyze Document", type="primary")
+
+    if uploaded_file and analyze_button:
+        document_text = ""
+
+        if uploaded_file.type == "text/plain":
+            document_text = uploaded_file.getvalue().decode("utf-8")
+        elif uploaded_file.type == "application/pdf":
+            reader = PyPDF2.PdfReader(uploaded_file)
+            document_text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+
+        with st.spinner("🔍 Analyzing document..."):
+            analysis = analyze_document(document_text)
+
+            st.subheader("📌 Analysis Results")
+
+            st.markdown("### ✅ Key Provisions")
+            with st.container():
+                for point in analysis["key_points"]:
+                    st.markdown(point)
+
+            st.markdown("### ⚠️ Risk Assessment")
+            if not analysis["risks"]:
+                st.markdown("No risks identified.")
+            else:
+                severity_colors = {"high": "#ef476f",
                     "medium": "#ffd166",
-                    "low": "#06d6a0"
-                }.get(severity, "#666666")
-                
-                st.markdown(
-                    f"<div style='padding: 0.5rem; border-left: 4px solid {color}; margin: 0.5rem 0;'>"
-                    f"<b>{label}</b><br>"
-                    f"<span style='color: {color}; font-size: 0.9em'>{details}</span>"
-                    "</div>", 
-                    unsafe_allow_html=True
-                )
+                    "low": "#06d6a0"}
+
+                with st.container():
+                    for label, severity, details in analysis["risks"]:
+                        color = severity_colors.get(severity.lower(), "#666666")
+
+                        st.markdown(
+                            f"<div style='padding: 0.5rem; border-left: 4px solid {color}; margin: 0.5rem 0;'>"
+                            f"<b>{label}</b><br>"
+                            f"<span style='color: {color}; font-size: 0.9em'>{details}</span>"
+                            "</div>", 
+                            unsafe_allow_html=True
+                        )
 
 if __name__ == "__main__":
     main()
