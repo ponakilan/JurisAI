@@ -1,27 +1,50 @@
 import streamlit as st
 from openai import OpenAI
-import re
 
 client = OpenAI(
   api_key='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'
 )
 
-system_prompt = '''You are an AI legal assistant that provides guidance based on legal principles. 
+st.markdown('<style>h3{margin-top:0;padding-top:0 !important;}</style>',unsafe_allow_html=True)
+
+
+system_prompt_deadlines = '''You are an AI legal assistant that provides guidance based on legal principles. 
+Your responses should be neutral, informative, and help the user understand their legal options. 
+You provide definitive legal conclusions. 
+Ignore the general query of the user.
+Only pick up the context and give the necessary deadlines before which the user has to take any action.
+You do not provide general actions. You only provide legal advice and how to proceed judicially.
+You do not provide advice to consult an attorney.
+You provide decisive information.
+Your response should show only critical deadlines to file any complaints according to the query.
+Provide definite dates and timeline restrictions before which necessary actions can be taken'''
+
+system_prompt_actions = '''You are an AI legal assistant that provides guidance based on legal principles. 
 Your responses should be neutral, informative, and help the user understand their legal options. 
 You provide definitive legal conclusions. 
 You do not provide general actions. You only provide legal advice and how to proceed judicially.
 You do not provide advice to consult an attorney.
 You provice decisive information.
-Your response should contain three sections: 1.critical deadlines to file any complaint 2. required actions to be taken 3.legal protection acts that are applicable to the user's query'''
+Your response should mention only the required actions to be taken'''
 
 
+system_prompt_acts = '''You are an AI legal assistant that provides guidance based on legal principles. 
+Your responses should be neutral, informative, and help the user understand their legal options. 
+You provide definitive legal conclusions. 
+You do not provide general actions.
+Ignore the general query and pick up the context alone and mention the laws and legal protection acts that can work in favour of the user.
+List the legal acts and laws as list with minimal explanation of each.
+You do not provide advice to consult an attorney.
+You provice decisive information.
+Your response should provide the legal protection acts of those in relevance to the user's query '''
 
-def get_guidance(prompt):
+
+def get_guidance(prompt,system_settings):
     
     completion = client.chat.completions.create(
     model="gpt-4o",
     messages=[
-        {"role": "system", "content": system_prompt},
+        {"role": "system", "content": system_settings},
         {
             "role": "user",
             "content": prompt
@@ -29,10 +52,8 @@ def get_guidance(prompt):
     ]
     )
     result_prompt = completion.choices[0].message.content
-    #matches = re.split(r'\n\d+\.\s\*\*[^\*\*]\*\*:', result_prompt)
-    final_response = result_prompt.replace('**','<h3>').replace('**:','</h3>')
-    #print(final_response)
-    return final_response
+    return result_prompt
+
 st.set_page_config(page_title="Legal Resolution Guide")
 st.title("Legal Resolution Guide")
 st.caption("Specialized support for your issues.")
@@ -48,14 +69,21 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+response_headings = ["Critical Deadlines to File Any Complaint:","Required Actions to Be Taken:","Legal Protection Acts That Are Applicable:"]
+
 if prompt := st.chat_input("Enter your issue..."):
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
     
     with st.chat_message("assistant"):
-        response = get_guidance(prompt)
-        st.markdown(response)
+        response_deadlines = get_guidance(prompt,system_prompt_deadlines)
+        response_actions = get_guidance(prompt,system_prompt_actions)
+        response_acts = get_guidance(prompt,system_prompt_acts)
+        response = response_deadlines+response_actions+response_deadlines
+        response_deadlines = st.markdown(f'<h3>{response_headings[0]}</h3><p>{response_deadlines}</p>',unsafe_allow_html=True)
+        response_actions = st.markdown(f'<h3>{response_headings[1]}</h3><p>{response_actions}</p>',unsafe_allow_html=True)
+        response_acts = st.markdown(f'<h3>{response_headings[2]}</h3><p>{response_acts}</p>',unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
 with st.sidebar:
