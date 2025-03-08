@@ -54,11 +54,9 @@ if prompt := st.chat_input("Enter your issue..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     
     with st.chat_message("assistant"):
-        #response = get_guidance(prompt)
-        #print(response)
-        #response = "Please describe your employment issue in detail (e.g., dismissal timing, safety reports made)"
-        
-        st.session_state.messages.append({"role": "user", "content": "hello hi hola"})
+        response = get_guidance(prompt)
+        st.markdown(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
 with st.sidebar:
     st.warning("""
