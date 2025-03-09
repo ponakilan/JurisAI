@@ -84,7 +84,7 @@ if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("assistant"):
         response= get_guidance(prompt,system_prompt)
-        response= st.markdown(response)
+        st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
 with st.sidebar:
@@ -124,9 +124,9 @@ if recording:
     voice_prompt = transcription.text
     with st.chat_message("user"):
         st.markdown(voice_prompt)
-    st.session_state.messages.append({"role": "user", "content": voice_prompt})
+        st.session_state.messages.append({"role": "user", "content": voice_prompt})
     with st.chat_message("assistant"):
         response = get_guidance(voice_prompt,system_prompt)
-        response= st.markdown(response)
+        st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
