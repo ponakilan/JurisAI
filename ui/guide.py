@@ -64,7 +64,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.messages.append({
         "role": "assistant",
-        "content": "Describe your issue."
+        "content": "Describe your issue in you regional language."
     })
 
 for message in st.session_state.messages:
@@ -95,8 +95,31 @@ if prompt:
         response_actions = st.markdown(f'<h3>{response_headings[1]}</h3><p>{response_actions}</p>',unsafe_allow_html=True)
         response_acts = st.markdown(f'<h3>{response_headings[2]}</h3><p>{response_acts}</p>',unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": response})
+with st.sidebar:
+    st.markdown("""
+    <style>
+    .sidebar-title {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        color: #ffffff;
+        background-color: #ffc133;
+        padding: 10px;
+        border-radius: 10px;
+    }
+    .sidebar-content {
+        font-size: 15px;
+        color: #ffffff;
+        padding: 10px;
+    }
+    </style>
+    <div class="sidebar-title">Voice Recorder</div>
+    <div class="sidebar-content">
+        - Speak in your Regional Language<br>
+    </div>
+    """, unsafe_allow_html=True)
+    recording = mic_recorder(key='my_recorder', callback=callback)
 
-recording = mic_recorder(key='my_recorder', callback=callback)
 if recording:
     recording_bytes = recording["bytes"]
     with open("voice.mp3","wb") as file:
@@ -120,15 +143,3 @@ if recording:
         response_acts = st.markdown(f'<h3>{response_headings[2]}</h3><p>{response_acts}</p>',unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-
-
-
-
-
-with st.sidebar:
-    st.warning("""
-    **Important Reminders:**
-    - Preserve all digital evidence immediately
-    - Never sign termination agreements without legal review
-    - Keep detailed timeline of events
-    """)
