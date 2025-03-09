@@ -37,7 +37,6 @@ Always ask a follow-up question (unless the user's query is already fully resolv
 
 
 
-
 def get_guidance(prompt,system_settings):
     
     completion = client.chat.completions.create(
@@ -127,7 +126,7 @@ if recording:
         st.markdown(voice_prompt)
     st.session_state.messages.append({"role": "user", "content": voice_prompt})
     with st.chat_message("assistant"):
-        response = get_guidance(prompt,system_prompt)
+        response = get_guidance(voice_prompt,system_prompt)
         response= st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
