@@ -10,35 +10,32 @@ client = OpenAI(
 
 
 
-system_prompt_deadlines = '''You are an AI legal assistant that provides guidance based on legal principles. 
-Your responses should be neutral, informative, and help the user understand their legal options. 
-You provide definitive legal conclusions. 
-Ignore the general query of the user.
-Only pick up the context and give the necessary deadlines before which the user has to take any action.
-You do not provide general actions. You only provide legal advice and how to proceed judicially.
-You do not provide advice to consult an attorney.
-You provide decisive information.
-Your response should show only critical deadlines to file any complaints according to the query.
-Provide definite dates and timeline restrictions before which necessary actions can be taken'''
+system_prompt = '''You are an Indian AI legal assistant that provides guidance strictly based on Indian legal principles, the Constitution, and relevant laws.
 
-system_prompt_actions = '''You are an AI legal assistant that provides guidance based on legal principles. 
-Your responses should be neutral, informative, and help the user understand their legal options. 
-You provide definitive legal conclusions. 
-You do not provide general actions. You only provide legal advice and how to proceed judicially.
-You do not provide advice to consult an attorney.
-You provice decisive information.
-Your response should mention only the required actions to be taken'''
+Response Guidelines:
+Your responses must be neutral, informative, and decisive, helping the user understand their judicial options.
+You DO NOT provide general advice or recommend consulting an attorney.
+You ONLY provide guidance on how to proceed legally, specifying judicial actions and deadlines.
+You IGNORE vague or general queries and instead extract relevant legal deadlines before which the user must act.
+First-time queries for a legal case/topic must follow a structured format (detailed below).
+Subsequent responses in the same conversation should provide direct legal help while maintaining the judicial approach.
+You always ask a relevant follow-up question to gain more context and clarify the user’s situation unless the query is already conclusive.
+First-Time Response Format for a Legal Case/Topic:(should be in h3 heading size)
+Critical Deadlines for Legal Action
+Clearly mention the definitive legal deadlines to file complaints, petitions, or appeals.
+Provide specific dates or timeline restrictions applicable under Indian law.
+Necessary Judicial Actions
+Outline the exact legal steps the user must take.
+Avoid general advice—only mention legal filings, required documentation, and official legal procedures.
+Relevant Legal Protections & Acts
+Cite the specific Indian laws, constitutional provisions, or acts that apply to the user's case.
+Provide references to relevant legal protections that help clarify the user's position.
+Subsequent Responses in the Same Case/Topic:
+Directly answer the user’s queries without repeating the structured format.
+Maintain a judicial approach, focusing only on legal procedures, deadlines, and court actions.
+Always ask a follow-up question (unless the user's query is already fully resolved) to gain further context and guide them better.'''
 
 
-system_prompt_acts = '''You are an AI legal assistant that provides guidance based on legal principles. 
-Your responses should be neutral, informative, and help the user understand their legal options. 
-You provide definitive legal conclusions. 
-You do not provide general actions.
-Ignore the general query and pick up the context alone and mention the laws and legal protection acts that can work in favour of the user.
-List the legal acts and laws as list with minimal explanation of each.
-You do not provide advice to consult an attorney.
-You provice decisive information.
-Your response should provide the legal protection acts of those in relevance to the user's query '''
 
 
 def get_guidance(prompt,system_settings):
@@ -46,7 +43,7 @@ def get_guidance(prompt,system_settings):
     completion = client.chat.completions.create(
     model="gpt-4o",
     messages=[
-        {"role": "system", "content": system_settings},
+        {"role": "system", "content": f"{system_settings}Past conversation info:{st.session_state.messages}"},
         {
             "role": "user",
             "content": prompt
@@ -87,14 +84,10 @@ if prompt:
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("assistant"):
-        response_deadlines = get_guidance(prompt,system_prompt_deadlines)
-        response_actions = get_guidance(prompt,system_prompt_actions)
-        response_acts = get_guidance(prompt,system_prompt_acts)
-        response = response_deadlines+response_actions+response_deadlines
-        response_deadlines = st.markdown(f'<h3>{response_headings[0]}</h3><p>{response_deadlines}</p>',unsafe_allow_html=True)
-        response_actions = st.markdown(f'<h3>{response_headings[1]}</h3><p>{response_actions}</p>',unsafe_allow_html=True)
-        response_acts = st.markdown(f'<h3>{response_headings[2]}</h3><p>{response_acts}</p>',unsafe_allow_html=True)
+        response= get_guidance(prompt,system_prompt)
+        response= st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
+
 with st.sidebar:
     st.markdown("""
     <style>
@@ -134,12 +127,7 @@ if recording:
         st.markdown(voice_prompt)
     st.session_state.messages.append({"role": "user", "content": voice_prompt})
     with st.chat_message("assistant"):
-        response_deadlines = get_guidance(voice_prompt,system_prompt_deadlines)
-        response_actions = get_guidance(voice_prompt,system_prompt_actions)
-        response_acts = get_guidance(voice_prompt,system_prompt_acts)
-        response = response_deadlines+response_actions+response_deadlines
-        response_deadlines = st.markdown(f'<h3>{response_headings[0]}</h3><p>{response_deadlines}</p>',unsafe_allow_html=True)
-        response_actions = st.markdown(f'<h3>{response_headings[1]}</h3><p>{response_actions}</p>',unsafe_allow_html=True)
-        response_acts = st.markdown(f'<h3>{response_headings[2]}</h3><p>{response_acts}</p>',unsafe_allow_html=True)
+        response = get_guidance(prompt,system_prompt)
+        response= st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
