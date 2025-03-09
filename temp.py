@@ -5,6 +5,10 @@ st.set_page_config(page_title="JurisAI", layout="wide")
 st.markdown(
     """
     <style>
+        a {
+            text-decoration: none !important;
+            color: black !important;
+        }
         .main {
             display: flex;
             flex-wrap: wrap;
@@ -20,7 +24,7 @@ st.markdown(
             box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
             transition: 0.3s;
             width: 550px;
-            height:350px;
+            height:250px;
             text-align: center;
             margin-left:auto;
             margin-right:auto;
@@ -65,21 +69,21 @@ st.markdown("<h4 style='text-align: center; opacity:40%;'>Your AI-powered legal 
 st.markdown('<div class="main">', unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
-    st.markdown('<div class="card"> <h2>Court-Ready Document Formatting</h2><p>Generate legally compliant documents tailored to your needs, formatted and structured professionally for court submission.</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<a href="http://13.201.51.57/format"><div class="card"> <h2>Court-Ready Document Formatting</h2><p>Generate legally compliant documents tailored to your needs, formatted and structured professionally for court submission.</p>', unsafe_allow_html=True)
+    st.markdown('</div></a>', unsafe_allow_html=True)
 
 
-    st.markdown('<div class="card"> <h2>Legal Document Simplification</h2> <p>Break down complex legal jargon into clear, understandable language so you can grasp your legal rights and obligations effortlessly.</p>', unsafe_allow_html=True)
+    st.markdown('<a href="http://13.201.51.57/doc"><div class="card"> <h2>Legal Document Simplification</h2> <p>Break down complex legal jargon into clear, understandable language so you can grasp your legal rights and obligations effortlessly.</p>', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div></a>', unsafe_allow_html=True)
 
 with col2:
-    st.markdown('<div class="card"> <h2>Inexpensive Legal Advice</h2> <p>Get quick, cost-effective legal guidance from AI-assisted research and recommendations tailored to your situation.</p>', unsafe_allow_html=True)
+    st.markdown('<a href="http://13.201.51.57/guide"><div class="card"> <h2>Inexpensive Legal Advice</h2> <p>Get quick, cost-effective legal guidance from AI-assisted research and recommendations tailored to your situation.</p>', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div></a>', unsafe_allow_html=True)
 
-    st.markdown('<div class="card"> <h2>Cases Library</h2> <p>Explore a comprehensive collection of past legal cases, decisions, and references to support your case research.</p>', unsafe_allow_html=True)
+    st.markdown('<a href="http://13.201.51.57/similar-cases"><div class="card"> <h2>Cases Library</h2> <p>Explore a comprehensive collection of past legal cases, decisions, and references to support your case research.</p>', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div></a>', unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)

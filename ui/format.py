@@ -3,7 +3,7 @@ import PyPDF2
 from openai import OpenAI
 import os
 
-TEMPLATE_DIR="templates"
+TEMPLATE_DIR="ui/templates"
 
 client = OpenAI(
   api_key='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'
@@ -41,7 +41,7 @@ def read_pdf(file_path):
 
 def predefined_compare_document(template_name, user_document):
     """Retrieves the predefined template and compares it with the user document."""
-    template_path = os.path.join(TEMPLATE_DIR, f"{template_name}.pdf")
+    template_path = os.path.join(f"{TEMPLATE_DIR}/", f"{template_name}.pdf")
     
     if not os.path.exists(template_path):
         return "Template not found."
