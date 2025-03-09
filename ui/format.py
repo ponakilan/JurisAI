@@ -1,6 +1,9 @@
 import streamlit as st
 import PyPDF2
 from openai import OpenAI
+import os
+
+TEMPLATE_DIR="templates"
 
 client = OpenAI(
   api_key='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'
@@ -30,8 +33,29 @@ Minor wording variations are acceptable unless they affect meaning or legality.
 Clearly state any issues in a structured format.
 '''
 
-def predefined_compare_document(chosen_temp, document_text):
-    return
+def read_pdf(file_path):
+    """Extracts text from a given PDF file."""
+    with open(file_path, "rb") as file:
+        reader = PyPDF2.PdfReader(file)
+        return "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+
+def predefined_compare_document(template_name, user_document):
+    """Retrieves the predefined template and compares it with the user document."""
+    template_path = os.path.join(TEMPLATE_DIR, f"{template_name}.pdf")
+    
+    if not os.path.exists(template_path):
+        return "Template not found."
+
+    template_text = read_pdf(template_path)
+
+    completion = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"sample-document:{template_text}, required-document:{user_document}"}
+        ]
+    )
+    return completion.choices[0].message.content
 
 def custom_compare_document(org_doc,chk_doc):
     completion = client.chat.completions.create(
@@ -57,38 +81,25 @@ def main():
     
     with tab1:
         st.subheader("Predefined Document Analysis")
-        predefined_docs = ["Employment Agreement", "Non-Disclosure Agreement (NDA)", "Service Contract", "Lease Agreement"]
+        predefined_docs = ["Business Service Agreement", "Affidavit for subsitution", "Agreement of License between Trade Mark Owner and a Manufacturer"
+        "Anticipatory Bail Petition Format", "Confidential Information and Non-Disclosure Agreement NDA","Free privacy policy","Legal Notice for Recovery of Money","Licence to use Copyright","Partition Deed"]
         selected_doc = st.selectbox("Choose a predefined document", predefined_docs)
         uploaded_file = st.file_uploader("Upload your document", type=["txt", "pdf"], help="Supported formats: .txt, .pdf (max 10MB)")
         
         if uploaded_file:
             if st.button("Submit"):
                 with st.spinner("Comparing document with chosen template..."):
-                    document_text = "hello"
+                    document_text =""
+                    if uploaded_file.type == "text/plain" :
+                        document_text = uploaded_file1.getvalue().decode("utf-8")
+                    elif uploaded_file.type == "application/pdf" :
+                        readerfile = PyPDF2.PdfReader(uploaded_file)
+                        document_text= "\n".join([page.extract_text() for page in readerfile.pages if page.extract_text()])
                     analysis = predefined_compare_document(selected_doc,document_text)
-                    
-                    st.markdown("#### Wrong Formatting located in following places")
-                    with st.container(border=True):
-                        for point in analysis["key_points"]:
-                            st.markdown(point)
                     
                     st.markdown("#### Changes that should be made")
                     with st.container(border=True):
-                        for risk in analysis["risks"]:
-                            label, severity, details = risk
-                            color = {
-                                "high": "#ef476f",
-                                "medium": "#ffd166",
-                                "low": "#06d6a0"
-                            }.get(severity, "#666666")
-                            
-                            st.markdown(
-                                f"<div style='padding: 0.5rem; border-left: 4px solid {color}; margin: 0.5rem 0;'>"
-                                f"<b>{label}</b><br>"
-                                f"<span style='color: {color}; font-size: 0.9em'>{details}</span>"
-                                "</div>", 
-                                unsafe_allow_html=True
-                            )
+                            st.markdown(analysis)
         
     with tab2:
         st.subheader("Comparison Analysis")
