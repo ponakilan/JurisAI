@@ -1,5 +1,8 @@
 import streamlit as st
 from openai import OpenAI
+from io import BytesIO
+from streamlit_mic_recorder import mic_recorder
+
 client = OpenAI(
   api_key='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'
 )
@@ -68,13 +71,21 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+def callback():
+    if st.session_state.my_recorder_output:
+        audio_bytes = st.session_state.my_recorder_output['bytes']
+        
+
 response_headings = ["Critical Deadlines to File Any Complaint:","Required Actions to Be Taken:","Legal Protection Acts That Are Applicable:"]
 
-if prompt := st.chat_input("Enter your issue..."):
+button,prompt = st.columns(2,vertical_alignment="bottom")
+
+prompt = st.chat_input("Enter your issue...")
+#button = st.button("Voice")
+if prompt:
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
-    
     with st.chat_message("assistant"):
         response_deadlines = get_guidance(prompt,system_prompt_deadlines)
         response_actions = get_guidance(prompt,system_prompt_actions)
@@ -84,6 +95,35 @@ if prompt := st.chat_input("Enter your issue..."):
         response_actions = st.markdown(f'<h3>{response_headings[1]}</h3><p>{response_actions}</p>',unsafe_allow_html=True)
         response_acts = st.markdown(f'<h3>{response_headings[2]}</h3><p>{response_acts}</p>',unsafe_allow_html=True)
         st.session_state.messages.append({"role": "assistant", "content": response})
+
+recording = mic_recorder(key='my_recorder', callback=callback)
+if recording:
+    recording_bytes = recording["bytes"]
+    with open("voice.mp3","wb") as file:
+        file.write(BytesIO(recording_bytes).read())
+    audio_file= open("./voice.mp3", "rb")
+    transcription = client.audio.transcriptions.create(
+        model="whisper-1", 
+        file=audio_file
+        )
+    voice_prompt = transcription.text
+    with st.chat_message("user"):
+        st.markdown(voice_prompt)
+    st.session_state.messages.append({"role": "user", "content": voice_prompt})
+    with st.chat_message("assistant"):
+        response_deadlines = get_guidance(voice_prompt,system_prompt_deadlines)
+        response_actions = get_guidance(voice_prompt,system_prompt_actions)
+        response_acts = get_guidance(voice_prompt,system_prompt_acts)
+        response = response_deadlines+response_actions+response_deadlines
+        response_deadlines = st.markdown(f'<h3>{response_headings[0]}</h3><p>{response_deadlines}</p>',unsafe_allow_html=True)
+        response_actions = st.markdown(f'<h3>{response_headings[1]}</h3><p>{response_actions}</p>',unsafe_allow_html=True)
+        response_acts = st.markdown(f'<h3>{response_headings[2]}</h3><p>{response_acts}</p>',unsafe_allow_html=True)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+
+
+
+
 
 with st.sidebar:
     st.warning("""
