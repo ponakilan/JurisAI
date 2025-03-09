@@ -33,13 +33,16 @@ st.markdown(
             # background-position: right;
 
         }
+        a:hover {
+            color: white !important;
+        }
         .card:hover {
-            
+            color: white !important;
+            background-color: black;
             box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
         }
         .card button {
             background-color: #4CAF50;
-            color: white;
             border: none;
             padding: 10px;
             border-radius: 5px;
@@ -48,6 +51,7 @@ st.markdown(
         }
         .card button:hover {
             background-color: #45a049;
+            color: white !important;
         }
         .material-symbols-outlined {
         font-variation-settings:
