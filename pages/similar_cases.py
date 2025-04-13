@@ -1,11 +1,10 @@
 import openai
 import streamlit as st
 
-from search import VectorDB
+from core.search import VectorDB
 
 db = VectorDB()
-OPEN_API_KEY = "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"
-client = openai.OpenAI(api_key=OPEN_API_KEY)
+client = openai.OpenAI(api_key=st.secrets['OPENAI_API_KEY'])
 
 
 def get_case_summary(text):

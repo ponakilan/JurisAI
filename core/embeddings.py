@@ -1,10 +1,11 @@
 from openai import OpenAI
+import streamlit as st
 
 
 class Embeddings:
     def __init__(self):
         self.client = OpenAI(
-            api_key="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"
+            api_key=st.secrets['OPENAI_API_KEY']
         )
 
     def get_embeddings(self, text: str) -> list[float]:

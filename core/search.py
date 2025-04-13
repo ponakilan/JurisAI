@@ -1,4 +1,5 @@
 import faiss
+import streamlit as st
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 
@@ -7,7 +8,7 @@ class VectorDB:
     def __init__(self):
         embeddings = OpenAIEmbeddings(
             model="text-embedding-3-large",
-            api_key="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"
+            api_key=st.secrets['OPENAI_API_KEY']
         )
 
         index = faiss.IndexFlatL2(len(embeddings.embed_query("hello world")))
