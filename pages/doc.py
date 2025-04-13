@@ -2,8 +2,7 @@ import streamlit as st
 import openai
 import PyPDF2
 
-OPEN_API_KEY = "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"
-client = openai.OpenAI(api_key=OPEN_API_KEY)
+client = openai.OpenAI(api_key=st.secrets['OPENAI_API_KEY'])
 
 def analyze_document(document_text):
     if not document_text.strip():

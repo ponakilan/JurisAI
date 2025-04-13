@@ -4,14 +4,13 @@ from io import BytesIO
 from streamlit_mic_recorder import mic_recorder
 
 client = OpenAI(
-  api_key='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'
+  api_key=st.secrets['OPENAI_API_KEY']
 )
 
 
 
 
-system_prompt = f'''
-You are an Indian AI legal assistant that provides guidance strictly based on Indian legal principles, the Constitution, and relevant laws.
+system_prompt = '''You are an Indian AI legal assistant that provides guidance strictly based on Indian legal principles, the Constitution, and relevant laws.
 
 Response Guidelines:
 Your responses must be neutral, informative, and decisive, helping the user understand their judicial options.
@@ -21,7 +20,7 @@ You IGNORE vague or general queries and instead extract relevant legal deadlines
 First-time queries for a legal case/topic must follow a structured format (detailed below).
 Subsequent responses in the same conversation should provide direct legal help while maintaining the judicial approach.
 You always ask a relevant follow-up question to gain more context and clarify the user’s situation unless the query is already conclusive.
-First-Time Response Format for a Legal Case/Topic:
+First-Time Response Format for a Legal Case/Topic:(should be in h3 heading size)
 Critical Deadlines for Legal Action
 Clearly mention the definitive legal deadlines to file complaints, petitions, or appeals.
 Provide specific dates or timeline restrictions applicable under Indian law.
@@ -35,8 +34,6 @@ Subsequent Responses in the Same Case/Topic:
 Directly answer the user’s queries without repeating the structured format.
 Maintain a judicial approach, focusing only on legal procedures, deadlines, and court actions.
 Always ask a follow-up question (unless the user's query is already fully resolved) to gain further context and guide them better.'''
-
-
 
 
 
@@ -63,7 +60,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.messages.append({
         "role": "assistant",
-        "content": "Describe your issue."
+        "content": "Describe your issue in you regional language."
     })
 
 for message in st.session_state.messages:
@@ -75,7 +72,7 @@ def callback():
         audio_bytes = st.session_state.my_recorder_output['bytes']
         
 
-#response_headings = ["Critical Deadlines to File Any Complaint:","Required Actions to Be Taken:","Legal Protection Acts That Are Applicable:"]
+response_headings = ["Critical Deadlines to File Any Complaint:","Required Actions to Be Taken:","Legal Protection Acts That Are Applicable:"]
 
 button,prompt = st.columns(2,vertical_alignment="bottom")
 
@@ -86,11 +83,35 @@ if prompt:
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("assistant"):
-        response = get_guidance(prompt,system_prompt)
-        response= st.markdown(response)
+        response= get_guidance(prompt,system_prompt)
+        st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-recording = mic_recorder(key='my_recorder', callback=callback)
+with st.sidebar:
+    st.markdown("""
+    <style>
+    .sidebar-title {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        color: #ffffff;
+        background-color: #ffc133;
+        padding: 10px;
+        border-radius: 10px;
+    }
+    .sidebar-content {
+        font-size: 15px;
+        color: #ffffff;
+        padding: 10px;
+    }
+    </style>
+    <div class="sidebar-title">Voice Recorder</div>
+    <div class="sidebar-content">
+        - Speak in your Regional Language<br>
+    </div>
+    """, unsafe_allow_html=True)
+    recording = mic_recorder(key='my_recorder', callback=callback)
+
 if recording:
     recording_bytes = recording["bytes"]
     with open("voice.mp3","wb") as file:
@@ -103,21 +124,9 @@ if recording:
     voice_prompt = transcription.text
     with st.chat_message("user"):
         st.markdown(voice_prompt)
-    st.session_state.messages.append({"role": "user", "content": voice_prompt})
+        st.session_state.messages.append({"role": "user", "content": voice_prompt})
     with st.chat_message("assistant"):
-        response = get_guidance(prompt,system_prompt)
-        response= st.markdown(response)
+        response = get_guidance(voice_prompt,system_prompt)
+        st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-
-
-
-
-
-with st.sidebar:
-    st.warning("""
-    **Important Reminders:**
-    - Preserve all digital evidence immediately
-    - Never sign termination agreements without legal review
-    - Keep detailed timeline of events
-    """)
