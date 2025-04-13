@@ -85,7 +85,7 @@ with col2:
 
     st.markdown('</div></a>', unsafe_allow_html=True)
 
-    st.markdown('<a href="/similar-cases"><div class="card"> <h2>Cases Library</h2> <p>Explore a comprehensive collection of past legal cases, decisions, and references to support your case research.</p>', unsafe_allow_html=True)
+    st.markdown('<a href="/similar_cases"><div class="card"> <h2>Cases Library</h2> <p>Explore a comprehensive collection of past legal cases, decisions, and references to support your case research.</p>', unsafe_allow_html=True)
 
     st.markdown('</div></a>', unsafe_allow_html=True)
 
