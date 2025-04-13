@@ -2,7 +2,7 @@ altair
 annotated-types
 anyio
 attrs
-audioop-lts
+# audioop-lts
 blinker
 cachetools
 certifi
